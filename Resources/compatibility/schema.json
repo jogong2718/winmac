@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/winmac/compatibility-profile.schema.json",
+  "title": "Winmac Compatibility Profile",
+  "type": "object",
+  "required": ["appID", "displayName"],
+  "additionalProperties": false,
+  "properties": {
+    "appID": {
+      "type": "string",
+      "pattern": "^[0-9]+$"
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recommendedRuntimeID": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "dllOverrides": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "arguments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

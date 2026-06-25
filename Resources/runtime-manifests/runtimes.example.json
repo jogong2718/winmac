@@ -1,0 +1,15 @@
+{
+  "runtimes": [
+    {
+      "id": "example-wine-runtime",
+      "kind": "wine",
+      "version": "0.0.0-example",
+      "platform": "macos",
+      "architectures": ["x86_64", "arm64"],
+      "url": "https://example.invalid/runtime.tar.xz",
+      "sha256": "replace-with-real-checksum-before-use",
+      "licenseIdentifier": "replace-with-real-license",
+      "notes": "Example manifest only. Do not ship until URL, checksum, and license metadata are real."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+.DS_Store
+.build/
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+Package.resolved
+diagnostics.json
+*.log.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj/
+*.xcworkspace/
+*.xcuserstate
+.DS_Store
+Resources/runtime-cache/

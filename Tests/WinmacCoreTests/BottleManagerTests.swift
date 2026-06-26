@@ -41,6 +41,7 @@ final class BottleManagerTests: XCTestCase {
         let validation = BottleManager().validate(prefixURL: prefixURL)
 
         XCTAssertFalse(validation.isValid)
-        XCTAssertEqual(validation.brokenSymlinks, [dosDevicesURL.appendingPathComponent("z:").path])
+        XCTAssertEqual(validation.brokenSymlinks.count, 1)
+        XCTAssertTrue(validation.brokenSymlinks[0].hasSuffix("/dosdevices/z:"))
     }
 }

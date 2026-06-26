@@ -12,9 +12,13 @@ Implementation has started with a Swift package foundation:
 
 This project does not currently launch Steam games end-to-end. The first working milestone is a CLI-driven proof of life: scan Steam libraries, validate a Wine prefix, produce a launch plan, and export sanitized diagnostics.
 
+Important: macOS Steam cannot install Windows-only games. Winmac treats native Mac Steam as a discovery source only. Future install/play support needs a Windows Steam client running inside Wine, or an advanced/manual game-file path provided by the user.
+
 ## Scope
 
 Winmac targets single-player and non-invasive DRM Windows games first. It will not promise support for competitive multiplayer games that depend on kernel drivers, invasive anti-cheat, or platform-specific DRM. Compatibility will vary by game, macOS version, CPU architecture, GPU capability, and the available Wine/graphics translation stack.
+
+Windows-only Steam games must be installed through a Windows-compatible Steam workflow before first play. The recommended future path is a shared Windows Steam bottle managed by Winmac; native macOS Steam is not an installation source for those titles.
 
 ## Non-Goals for the Beta
 
@@ -38,6 +42,14 @@ swift build
 swift test
 ```
 
+Run the native macOS preview app:
+
+```bash
+swift run Winmac
+```
+
+The app currently scans Steam libraries, validates Wine prefixes, previews launch plans, and exports diagnostics. It does not launch games yet.
+
 Try the CLI:
 
 ```bash
@@ -53,7 +65,10 @@ swift run winmac-cli diagnostics export --output diagnostics.json
 ```text
 Sources/WinmacCore/      Shared core library
 Sources/WinmacCLI/       CLI proof-of-life tool
+Sources/WinmacApp/       Native macOS SwiftUI app
+Sources/WinmacAppSupport/ Testable app services and view models
 Tests/WinmacCoreTests/   Unit tests and fixtures
+Tests/WinmacAppTests/    GUI support/view-model tests
 docs/                    Architecture and project policy docs
 ```
 

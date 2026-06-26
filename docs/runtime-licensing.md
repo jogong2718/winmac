@@ -5,14 +5,27 @@ Winmac should only use runtime components that can be redistributed or downloade
 ## Allowed Runtime Strategy
 
 - Open-source Wine-compatible runtimes when their licenses and binary distribution terms are understood.
-- DXVK, VKD3D-Proton, MoltenVK, and similar components only with their required notices and source/offers.
-- Runtime downloads with checksum verification and clear source URLs.
+- DXVK, VKD3D-Proton, MoltenVK, and similar components only with required notices and source/offers.
+- Runtime downloads with checksum verification, source URLs, license metadata, and versioned manifests.
+- User-provided Wine paths for development/testing, provided Winmac clearly labels them as user-managed.
 
 ## Not Allowed for the Beta
 
 - Bundling CrossOver, Whisky internals, Porting Kit internals, Apple Game Porting Toolkit, Steam installers, or proprietary game assets.
 - Copying GPL project code into Winmac unless the project license is changed to a compatible license.
 - Shipping opaque binary blobs without provenance, checksums, and license metadata.
+- Presenting proprietary runtimes as Winmac-managed open-source components.
+
+## Steam Client and SteamCMD
+
+Winmac must not bundle or redistribute Steam client binaries. The safer product boundary is:
+
+- Winmac may create a Wine bottle suitable for the user's own Windows Steam installation.
+- The user installs/signs into the official Windows Steam client inside that bottle.
+- Winmac can launch or index that user-installed Steam client, but it does not present Steam as a Winmac-owned runtime.
+- Future SteamCMD support, if any, should require explicit user setup or a documented Valve-approved download path.
+
+Game files remain subject to Steam's terms and the user's license. Winmac is a launcher and compatibility manager, not a distributor of Steam games or Steam binaries.
 
 ## Manifest Requirements
 
@@ -27,24 +40,7 @@ Every downloadable runtime component needs a manifest entry with:
 - license file or notice URL
 - unpack/install instructions
 
-The current code validates this metadata before a manifest can be accepted.# Runtime Licensing
-
-`winmac` should only use runtime components that can be redistributed or downloaded under clear license terms.
-
-## Allowed Direction
-
-- Wine-compatible builds with source and license obligations satisfied.
-- DXVK with its license notice retained.
-- VKD3D-Proton with LGPL obligations satisfied.
-- MoltenVK with Apache 2.0 notices retained.
-- Runtime downloads with checksums, versioned manifests, and license metadata.
-
-## Not Allowed For Bundling
-
-- CrossOver binaries or proprietary CrossOver assets.
-- Whisky internals copied as product code.
-- Apple Game Porting Toolkit redistribution unless Apple grants terms that explicitly allow it.
-- Steam installers, Steam client binaries, or game assets.
+The current code validates this metadata before a manifest can be accepted. Future CI should reject runtime manifests with missing checksums, unknown licenses, unsupported architectures, or placeholder URLs.
 
 ## Before Shipping Runtime Downloads
 
@@ -52,3 +48,4 @@ The current code validates this metadata before a manifest can be accepted.# Run
 2. Add third-party notices to release artifacts.
 3. Store source-offer or source-link metadata for LGPL components.
 4. Verify every runtime manifest has a checksum and license identifier.
+5. Confirm quarantine/signing behavior for downloaded executables before exposing launch in the GUI.

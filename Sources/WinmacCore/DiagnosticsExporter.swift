@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DiagnosticsExporter: Sendable {
+public struct DiagnosticsExporter {
     private let fileManager: FileManager
 
     public init(fileManager: FileManager = .default) {

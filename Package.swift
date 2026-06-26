@@ -15,11 +15,23 @@ let package = Package(
         .executable(
             name: "winmac-cli",
             targets: ["WinmacCLI"]
+        ),
+        .executable(
+            name: "Winmac",
+            targets: ["WinmacApp"]
         )
     ],
     targets: [
         .target(
             name: "WinmacCore"
+        ),
+        .target(
+            name: "WinmacAppSupport",
+            dependencies: ["WinmacCore"]
+        ),
+        .executableTarget(
+            name: "WinmacApp",
+            dependencies: ["WinmacAppSupport"]
         ),
         .executableTarget(
             name: "WinmacCLI",
@@ -28,6 +40,10 @@ let package = Package(
         .testTarget(
             name: "WinmacCoreTests",
             dependencies: ["WinmacCore"]
+        ),
+        .testTarget(
+            name: "WinmacAppTests",
+            dependencies: ["WinmacAppSupport"]
         )
     ]
 )

@@ -62,6 +62,73 @@ final class SteamLibraryScannerTests: XCTestCase {
         XCTAssertEqual(libraries.map(\.path), [externalURL.standardizedFileURL.path])
     }
 
+    func testIncludesUninstalledAppsFromLocalConfig() throws {
+        let rootURL = try makeTemporaryDirectory()
+        let steamAppsURL = rootURL.appendingPathComponent("steamapps")
+        let localConfigURL = rootURL
+            .appendingPathComponent("userdata")
+            .appendingPathComponent("123")
+            .appendingPathComponent("config")
+            .appendingPathComponent("localconfig.vdf")
+
+        try FileManager.default.createDirectory(at: steamAppsURL, withIntermediateDirectories: true)
+        try write(
+            """
+            "libraryfolders"
+            {
+                "0"
+                {
+                    "path" "\(rootURL.path)"
+                }
+            }
+            """,
+            to: steamAppsURL.appendingPathComponent("libraryfolders.vdf")
+        )
+        try write(appManifest(appID: "480", name: "Spacewar", installDirectoryName: "Spacewar"), to: steamAppsURL.appendingPathComponent("appmanifest_480.acf"))
+        try write(
+            """
+            "UserLocalConfigStore"
+            {
+                "Software"
+                {
+                    "Valve"
+                    {
+                        "Steam"
+                        {
+                            "apps"
+                            {
+                                "7"
+                                {
+                                    "cloud" { }
+                                }
+                                "480"
+                                {
+                                    "LastPlayed" "1"
+                                }
+                                "2371090"
+                                {
+                                    "cloud" { }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            """,
+            to: localConfigURL
+        )
+
+        let games = try SteamLibraryScanner().scan(steamRoot: rootURL)
+        let uninstalledGame = try XCTUnwrap(games.first { $0.appID == "2371090" })
+
+        XCTAssertEqual(games.filter { $0.appID == "480" }.count, 1)
+        XCTAssertNil(games.first { $0.appID == "7" })
+        XCTAssertEqual(uninstalledGame.name, "Steam App 2371090")
+        XCTAssertFalse(uninstalledGame.isInstalled)
+        XCTAssertEqual(uninstalledGame.source, .localConfig)
+        XCTAssertEqual(uninstalledGame.manifestPath, localConfigURL.standardizedFileURL.path)
+    }
+
     private func appManifest(appID: String, name: String, installDirectoryName: String) -> String {
         """
         "AppState"

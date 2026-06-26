@@ -14,7 +14,7 @@ public enum LaunchPlannerError: Error, LocalizedError, Equatable {
     }
 }
 
-public struct LaunchPlanner: Sendable {
+public struct LaunchPlanner {
     private let fileManager: FileManager
     private let bottleManager: BottleManager
 

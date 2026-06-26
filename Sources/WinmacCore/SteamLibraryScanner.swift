@@ -14,9 +14,10 @@ public enum SteamLibraryScannerError: Error, LocalizedError, Equatable {
     }
 }
 
-public struct SteamLibraryScanner: Sendable {
+public struct SteamLibraryScanner {
     private let fileManager: FileManager
     private let parser: VDFParser
+    private let excludedLocalConfigAppIDs: Set<String> = ["7", "760"]
 
     public init(fileManager: FileManager = .default, parser: VDFParser = VDFParser()) {
         self.fileManager = fileManager
@@ -45,6 +46,9 @@ public struct SteamLibraryScanner: Sendable {
                 }
             }
         }
+
+        let installedAppIDs = Set(games.map(\.appID))
+        games.append(contentsOf: try localConfigGames(steamRoot: rootURL, excluding: installedAppIDs))
 
         return games.sorted { firstGame, secondGame in
             firstGame.name.localizedCaseInsensitiveCompare(secondGame.name) == .orderedAscending
@@ -140,6 +144,72 @@ public struct SteamLibraryScanner: Sendable {
             installedPath: installedPath,
             stateFlags: appState.value(named: "StateFlags")
         )
+    }
+
+    private func localConfigGames(steamRoot: URL, excluding installedAppIDs: Set<String>) throws -> [SteamGame] {
+        let userdataURL = steamRoot.appendingPathComponent("userdata", isDirectory: true)
+
+        guard fileManager.fileExists(atPath: userdataURL.path) else {
+            return []
+        }
+
+        let accountDirectories = try fileManager.contentsOfDirectory(
+            at: userdataURL,
+            includingPropertiesForKeys: [.isDirectoryKey],
+            options: [.skipsHiddenFiles]
+        )
+
+        var gamesByAppID: [String: SteamGame] = [:]
+
+        for accountDirectory in accountDirectories {
+            guard (try? accountDirectory.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else {
+                continue
+            }
+
+            let localConfigURL = accountDirectory
+                .appendingPathComponent("config", isDirectory: true)
+                .appendingPathComponent("localconfig.vdf")
+
+            guard fileManager.fileExists(atPath: localConfigURL.path) else {
+                continue
+            }
+
+            let contents = try String(contentsOf: localConfigURL, encoding: .utf8)
+            let parsed = try parser.parse(contents)
+
+            guard
+                let appsNode = parsed
+                    .child(named: "UserLocalConfigStore")?
+                    .child(named: "Software")?
+                    .child(named: "Valve")?
+                    .child(named: "Steam")?
+                    .child(named: "apps")
+            else {
+                continue
+            }
+
+            for appID in appsNode.children.keys where shouldIncludeLocalConfigAppID(appID, installedAppIDs: installedAppIDs) {
+                gamesByAppID[appID] = SteamGame(
+                    appID: appID,
+                    name: "Steam App \(appID)",
+                    installDirectoryName: "Not installed",
+                    libraryPath: steamRoot.standardizedFileURL.path,
+                    manifestPath: localConfigURL.standardizedFileURL.path,
+                    installedPath: "",
+                    stateFlags: nil,
+                    isInstalled: false,
+                    source: .localConfig
+                )
+            }
+        }
+
+        return Array(gamesByAppID.values)
+    }
+
+    private func shouldIncludeLocalConfigAppID(_ appID: String, installedAppIDs: Set<String>) -> Bool {
+        appID.allSatisfy(\.isNumber)
+            && !installedAppIDs.contains(appID)
+            && !excludedLocalConfigAppIDs.contains(appID)
     }
 
     private func expandedPath(_ path: String) -> String {

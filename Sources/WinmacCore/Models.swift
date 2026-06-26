@@ -9,6 +9,8 @@ public struct SteamGame: Codable, Equatable, Identifiable, Sendable {
     public let manifestPath: String
     public let installedPath: String
     public let stateFlags: String?
+    public let isInstalled: Bool
+    public let source: SteamGameSource
 
     public init(
         appID: String,
@@ -17,7 +19,9 @@ public struct SteamGame: Codable, Equatable, Identifiable, Sendable {
         libraryPath: String,
         manifestPath: String,
         installedPath: String,
-        stateFlags: String? = nil
+        stateFlags: String? = nil,
+        isInstalled: Bool = true,
+        source: SteamGameSource = .appManifest
     ) {
         self.id = appID
         self.appID = appID
@@ -27,7 +31,14 @@ public struct SteamGame: Codable, Equatable, Identifiable, Sendable {
         self.manifestPath = manifestPath
         self.installedPath = installedPath
         self.stateFlags = stateFlags
+        self.isInstalled = isInstalled
+        self.source = source
     }
+}
+
+public enum SteamGameSource: String, Codable, Equatable, Sendable {
+    case appManifest
+    case localConfig
 }
 
 public struct SteamLibrary: Codable, Equatable, Identifiable, Sendable {

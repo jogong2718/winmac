@@ -1,6 +1,6 @@
 import Foundation
 
-public struct BottleManager: Sendable {
+public struct BottleManager {
     private let fileManager: FileManager
 
     public init(fileManager: FileManager = .default) {
